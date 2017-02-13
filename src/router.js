@@ -15,10 +15,13 @@ const FILE_BASE_URL = 'http://localhost:3000/upload/'
 var storage = multer.diskStorage({
     destination: function(req, file, cb) {
 
-        // console.log(req)
-        // console.log(req.body.tag)
-
         let dir = FILE_SAVE_PATH
+        const tag = req.body.tag
+
+        // 如果有子目录
+        if (tag) {
+            dir += `/${tag}/`
+        }
 
         if (!fs.existsSync(dir)) {
             mkdirp(dir, function(err) {
@@ -35,16 +38,17 @@ var storage = multer.diskStorage({
 
         const ext = path.extname(file.originalname)
         const filename = md5(moment().format('YYYY.MM.DD.HH.mm.ss.SSS') + Math.random()) + ext
+        const tag = req.body.tag || ''
+        const url = tag ? FILE_BASE_URL + `${tag}/` + filename : FILE_BASE_URL + filename
 
         req.handleResult = {
-            url: FILE_BASE_URL + filename,
+            url,
             originalFilename: file.originalname,
             filename: filename,
             encoding: file.encoding,
-            mimeType: file.mimetype
+            mimeType: file.mimetype,
+            tag
         }
-
-        // console.log(req.handleResult)
 
         cb(null, filename)
 
@@ -66,9 +70,26 @@ export default function createRouter() {
 
     return router
         .get('/file', async(ctx) => {
-            ctx.body = 'Use post method for upload file,  input name is "file"'
+            ctx.body = `
+                Use post method for upload file,  input name is "file". <br>
+                Url: /upload/file<br>
+                Method: post<br>
+                Param: tag[folder], file[file]
+            `
         })
         .post('/file', upload.single('file'), async(ctx) => {
+
+            // 参数
+            // - file 上传的文件流字段
+            // - [tag] 上传文件指定放的文件夹名
+
+            // 返回
+            // - url 文件外网访问的URL
+            // - originalFilename 原文件名
+            // - filename 现在文件名
+            // - encoding 编码
+            // - mimeType mime类型
+            // - tag 指定子文件夹
             ctx.body = ctx.req.handleResult
         })
 }
