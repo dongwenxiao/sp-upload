@@ -24,6 +24,7 @@ export default class spUpload {
 
         // 所有接口URL前缀
         this.urlPrefix = opt.prefix || '/upload'
+        this.domain = opt.domain || 'http://localhost:3000/upload/'
 
         // koa 路由，主要使用 .use() 挂载
         this.rootRouter = router
@@ -41,7 +42,7 @@ export default class spUpload {
         this.dao = new spMongoDB({ ip: this.ip, port: this.port, db: this.db })
 
         // 当前auth路由
-        this.router = createRouter()
+        this.router = createRouter(this.domain)
 
         // handbars 模板注册
         // const views = require('koa-views')

@@ -8,7 +8,7 @@ const path = require('path')
 const md5 = require('md5')
 
 const FILE_SAVE_PATH = process.cwd() + '/src/server/public/upload'
-const FILE_BASE_URL = 'http://localhost:3000/upload/'
+let FILE_BASE_URL = '' // 'http://localhost:3000/upload/'
 
 
 
@@ -64,8 +64,9 @@ const upload = multer({ storage: storage })
  * @export
  * @returns
  */
-export default function createRouter() {
+export default function createRouter(domain) {
 
+    FILE_BASE_URL = domain
     const router = new Router()
 
     return router
