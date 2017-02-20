@@ -18,11 +18,11 @@ var storage = multer.diskStorage({
     destination: function(req, file, cb) {
 
         let dir = FILE_SAVE_PATH
-        const tag = req.body.tag
+        const folder = req.body.tag || req.body.folder
 
         // 如果有子目录
-        if (tag) {
-            dir += `/${tag}/`
+        if (folder) {
+            dir += `/${folder}/`
         }
 
         if (!fs.existsSync(dir)) {
@@ -40,8 +40,8 @@ var storage = multer.diskStorage({
 
         const ext = path.extname(file.originalname)
         const filename = md5(moment().format('YYYY.MM.DD.HH.mm.ss.SSS') + Math.random()) + ext
-        const tag = req.body.tag || ''
-        const url = tag ? FILE_BASE_URL + `${tag}/` + filename : FILE_BASE_URL + filename
+        const folder = req.body.tag || req.body.folder || ''
+        const url = folder ? FILE_BASE_URL + `${folder}/` + filename : FILE_BASE_URL + filename
 
         req.handleResult = {
             url,
@@ -49,7 +49,7 @@ var storage = multer.diskStorage({
             filename: filename,
             encoding: file.encoding,
             mimeType: file.mimetype,
-            tag
+            folder
         }
 
         cb(null, filename)
