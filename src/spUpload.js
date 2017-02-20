@@ -1,6 +1,7 @@
 import { spMongoDB } from 'sp-mongo'
 import createRouter from './router'
 import Router from 'koa-router'
+import File from './File'
 
 export default class spUpload {
 
@@ -25,6 +26,7 @@ export default class spUpload {
         // 所有接口URL前缀
         this.urlPrefix = opt.prefix || '/upload'
         this.domain = opt.domain || 'http://localhost:3000/upload/'
+        this.collection = opt.collection || '__sp_upload'
 
         // koa 路由，主要使用 .use() 挂载
         this.rootRouter = router
@@ -44,14 +46,10 @@ export default class spUpload {
         // 当前auth路由
         this.router = createRouter(this.domain)
 
-        // handbars 模板注册
-        // const views = require('koa-views')
-        // this.rootMiddleware.use(views(__dirname + '/server/views', {
-        //     extension: 'ejs',
-        //     map: {
-        //         hbs: 'ejs'
-        //     }
-        // }))
+        // 配置数据库连接对象和表名
+        File.configDAO(this.dao)
+        File.configCollection(this.collection)
+
     }
 
     /**
@@ -66,12 +64,6 @@ export default class spUpload {
         const uploadRouter = new Router()
         uploadRouter.use(this.urlPrefix, this.router.routes(), this.router.allowedMethods())
         this.rootRouter.use(uploadRouter)
-
-        // 挂载权限校验中间件
-
-        // const rootRouter = this.rootRouter.root
-        // const authMiddleware = authMiddlewareCreate(rootRouter)
-        // this.rootMiddleware.use(authMiddleware)
 
     }
 

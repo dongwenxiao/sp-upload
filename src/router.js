@@ -1,4 +1,6 @@
 import Router from 'koa-router'
+import File from './File'
+import { spResponse, RES_SUCCESS, RES_FAIL_STORAGE } from 'sp-response'
 
 const multer = require('koa-multer')
 const moment = require('moment')
@@ -78,7 +80,7 @@ export default function createRouter(domain) {
                 Param: tag[folder], file[file]
             `
         })
-        .post('/file', upload.single('file'), async(ctx) => {
+        .post('/file', upload.single('file'), spResponse, async(ctx) => {
 
             // 参数
             // - file 上传的文件流字段
@@ -91,6 +93,24 @@ export default function createRouter(domain) {
             // - encoding 编码
             // - mimeType mime类型
             // - tag 指定子文件夹
-            ctx.body = ctx.req.handleResult
+
+            let result, operate
+
+            result = ctx.req.handleResult
+
+            operate = await File.add({
+                url: result.url,
+                originalFilename: result.originalFilename,
+                filename: result.filename,
+                encoding: result.encoding,
+                mimeType: result.mimeType,
+                folder: result.folder || result.tag
+            })
+
+            if (operate.result.ok) {
+                ctx.spResponse(RES_SUCCESS, operate.ops[0], '上传成功')
+            } else {
+                ctx.spResponse(RES_FAIL_STORAGE, {}, '上传失败')
+            }
         })
 }

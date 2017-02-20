@@ -24,6 +24,8 @@
   "dependencies": {
     "koa-multer": "^1.0.1",
     "mkdirp": "^0.5.1",
-    "moment": "^2.17.1"
+    "moment": "^2.17.1",
+    "sp-model": "^1.0.0",
+    "sp-response": "^sp-response"
   }
 }
